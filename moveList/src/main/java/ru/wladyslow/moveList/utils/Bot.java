@@ -7,6 +7,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.wladyslow.moveList.dto.MoveDto;
+import ru.wladyslow.moveList.dto.PortScheduleDto;
+import ru.wladyslow.moveList.dto.ScheduledOperationDto;
+
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -37,26 +40,25 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-            new SendMessage().setChatId(update.getMessage().getChatId().toString());
+        new SendMessage().setChatId(update.getMessage().getChatId().toString());
     }
 
     public void sendMoveInfoMessage(MoveDto move) throws TelegramApiException {
         SendMessage response = new SendMessage();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        String formattedDateTime = move.getTimeAndDateOfOperation().format(formatter);
-        String message = move.getVessel().getName() + " / " +
-                move.getVessel().getEngName() + " (" +
-                move.getVessel().getImo() + ") "+
-                move.getVessel().getFlag().getRusName() + " " +
-                move.getVessel().getType() + " " +
-                move.getVessel().getAgent().getName() + " " +
-                move.getOperation().getName() + " " +
-                move.getPointOfOperation().getName() + " " +
-                formattedDateTime + " " +
-                move.getPilot().getName();
         response.setChatId(this.getChatId());
-        response.setText(message);
-        System.out.println(message);
+        response.enableHtml(true);
+        response.setText(move.getMoveDtoMessage());
+        execute(response);
+    }
+
+    public void sendPortSchedule(PortScheduleDto portScheduleDto) throws TelegramApiException {
+        SendMessage response = new SendMessage();
+        String mes = portScheduleDto.getScheduleMessage();
+        response.setChatId(this.getChatId());
+        response.enableHtml(true);
+        response.setText(mes);
+        response.disableWebPagePreview();
         execute(response);
     }
 }
+

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
@@ -66,5 +67,21 @@ public class MoveDto implements Comparable<MoveDto>{
     @Override
     public int compareTo(MoveDto o) {
         return this.getTimeAndDateOfOperation().compareTo(o.getTimeAndDateOfOperation());
+    }
+
+    public String getMoveDtoMessage(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formattedDateTime = this.getTimeAndDateOfOperation().format(formatter);
+        return this.getVessel().getName() + " / " +
+                this.getVessel().getVesselFinderLink() +
+                " (" +
+                this.getVessel().getImo() + ") " +
+                this.getVessel().getFlag().getRusName() + " " +
+                this.getVessel().getType() + " " +
+                this.getVessel().getAgent().getName() + " " +
+                this.getOperation().getName() + " " +
+                this.getPointOfOperation().getName() + " " +
+                formattedDateTime + " " +
+                this.getPilot().getName();
     }
 }

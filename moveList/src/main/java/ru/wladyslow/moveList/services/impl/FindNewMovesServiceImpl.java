@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
     private final VesselService vesselService;
     private final BotService botService;
 
+    @Override
     public VesselDto getVesselDto(String urlEnd) {
         String subPart = "http://skap.pasp.ru/";
         String finalUrl = subPart.concat(urlEnd);
@@ -103,13 +105,25 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
             Elements cols = row.select("td");
             for (int j = 0; j < cols.size(); j++) {
                 if (cols.get(j).html().contains("Длина м.:")) {
-                    loa = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    if (cols.get(j).text().split(":").length > 1) {
+                        loa = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    } else {
+                        loa = 0;
+                    }
                 }
                 if (cols.get(j).html().contains("Ширина м.:")) {
-                    beam = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    if (cols.get(j).text().split(":").length > 1) {
+                        beam = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    } else {
+                        beam = 0;
+                    }
                 }
                 if (cols.get(j).html().contains("Высота борта м.:")) {
-                    height = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    if (cols.get(j).text().split(":").length > 1) {
+                        height = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    } else {
+                        height = 0;
+                    }
                 }
             }
         }
@@ -122,13 +136,25 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                 Elements cols = row.select("td");
                 for (int j = 0; j < cols.size(); j++) {
                     if (cols.get(j).html().contains("GRT т. :") && grt == 0) {
-                        grt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        if (cols.get(j).text().split(":").length > 1) {
+                            grt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        } else {
+                            grt = 0;
+                        }
                     }
                     if (cols.get(j).html().contains("Исключение из GRT т. :")) {
-                        swbt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        if (cols.get(j).text().split(":").length > 1) {
+                            swbt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        } else {
+                            swbt = 0;
+                        }
                     }
                     if (cols.get(j).html().contains("Дедвейт т.:")) {
-                        dwt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        if (cols.get(j).text().split(":").length > 1) {
+                            dwt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        } else {
+                            dwt = 0;
+                        }
                     }
                     if (cols.get(j).html().contains("Ледовый класс :")) {
                         iceClass = iceClassService.createOrUpdate(cols.get(j).text().split(":")[1].trim());
@@ -347,8 +373,18 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
         List<MoveDto> moves = getMovesForSentArrayList("http://skap.pasp.ru/Move/MoveListPaged?harb=PRIM");
         if (moves.size() > 0) {
             for (MoveDto move : moves) {
-                botService.sendMessage(move);
-                moveService.messageIsSent(move.getId());
+                if (moves.size() > 5) {
+                    botService.sendMessage(move);
+                    moveService.messageIsSent(move.getId());
+                    try {
+                        TimeUnit.SECONDS.sleep(3);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    botService.sendMessage(move);
+                    moveService.messageIsSent(move.getId());
+                }
             }
         }
     }

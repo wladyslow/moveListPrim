@@ -14,6 +14,9 @@ public class AgentDto {
     public AgentDto(String name) {
         this.name = name;
     }
+    public boolean equals(AgentDto agentDto) {
+        return this.name.equals(agentDto.name);
+    }
 }
 
 
