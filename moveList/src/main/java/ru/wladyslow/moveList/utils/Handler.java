@@ -8,11 +8,9 @@ import java.util.List;
 
 public interface Handler {
 
-// основной метод, который будет обрабатывать действия пользователя
     List<PartialBotApiMethod<? extends Serializable>> handle(UserDto user, String message);
 
     State operatedBotState();
-    // метод, который позволяет узнать, какие команды CallBackQuery мы можем обработать в этом классе
     List<String> operatedCallBackQuery();
 }
 
