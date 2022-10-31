@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.wladyslow.moveList.services.FindNewMovesService;
 import ru.wladyslow.moveList.services.FindNewPortSchedule;
+import ru.wladyslow.moveList.utils.Bot;
 
 @Component
 @RequiredArgsConstructor
@@ -12,6 +13,7 @@ public class SendNewMovesJob {
 
     private final FindNewMovesService findNewMovesService;
     private final FindNewPortSchedule findNewPortSchedule;
+    private final Bot bot;
 
     @Scheduled(fixedRateString ="${bot.recountNewMoves}")
     public void findAndPostNewMoves() {
@@ -22,4 +24,5 @@ public class SendNewMovesJob {
     public void findAndPostNewPortSchedule() {
         findNewPortSchedule.findNewPortScheduleAndPostIt();
     }
+
 }

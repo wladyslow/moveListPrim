@@ -1,17 +1,20 @@
 package ru.wladyslow.moveList.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.wladyslow.moveList.dto.MoveDto;
 import ru.wladyslow.moveList.dto.PortScheduleDto;
-import ru.wladyslow.moveList.dto.ScheduledOperationDto;
 
-import java.time.format.DateTimeFormatter;
+import java.io.Serializable;
+import java.util.List;
 
+@Slf4j
 @Component
 public class Bot extends TelegramLongPollingBot {
 
@@ -23,6 +26,12 @@ public class Bot extends TelegramLongPollingBot {
 
     @Value("${bot.chatid}")
     private Long chatId;
+
+    private UpdateReceiver updateReceiver;
+
+    public Bot(UpdateReceiver updateReceiver) {
+        this.updateReceiver = updateReceiver;
+    }
 
     @Override
     public String getBotUsername() {
@@ -40,7 +49,22 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        new SendMessage().setChatId(update.getMessage().getChatId().toString());
+        List<PartialBotApiMethod<? extends Serializable>> messagesToSend = updateReceiver.handle(update);
+        if (messagesToSend != null && !messagesToSend.isEmpty()) {
+            messagesToSend.forEach(response -> {
+                if (response instanceof SendMessage) {
+                    executeWithExceptionCheck((SendMessage) response);
+                }
+            });
+        }
+    }
+
+    public void executeWithExceptionCheck(SendMessage sendMessage) {
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            log.error("Что-то пошло не так...");
+        }
     }
 
     public void sendMoveInfoMessage(MoveDto move) throws TelegramApiException {

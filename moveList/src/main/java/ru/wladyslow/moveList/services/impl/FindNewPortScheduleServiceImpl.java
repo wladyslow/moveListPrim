@@ -1,6 +1,7 @@
 package ru.wladyslow.moveList.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FindNewPortScheduleServiceImpl implements FindNewPortSchedule {
@@ -124,5 +126,7 @@ public class FindNewPortScheduleServiceImpl implements FindNewPortSchedule {
         }
         return Optional.empty();
     }
+
+
 
 }

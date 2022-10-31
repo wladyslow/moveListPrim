@@ -13,4 +13,6 @@ public interface MoveRepository extends JpaRepository<Move, Long> {
     Optional<Move> findByCallId(Long callId);
 
     List<Move> findAllByIsSent(boolean isSent);
+
+    List<Move> findTop5ByOrderByExternalIdDesc();
 }

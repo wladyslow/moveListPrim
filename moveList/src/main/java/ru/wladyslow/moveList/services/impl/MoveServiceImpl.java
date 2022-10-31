@@ -23,6 +23,7 @@ public class MoveServiceImpl implements MoveService {
     private final PointMapper pointMapper;
     private final OperationMapper operationMapper;
     private final PilotMapper pilotMapper;
+    private final AgentMapper agentMapper;
 
     @Override
     public Long createMove(VesselDto vessel, PointDto pointOfOperation,
@@ -72,7 +73,7 @@ public class MoveServiceImpl implements MoveService {
     @Transactional
     public void update(Long id, VesselDto vessel, PointDto pointOfOperation,
                        OperationDto operation, LocalDateTime timeAndDateOfOperation,
-                       PointDto destinationPoint, PilotDto pilot, String operationAtBerth,
+                       PointDto destinationPoint, PilotDto pilot, AgentDto agent, String operationAtBerth,
                        Long callId, Long externalId) {
         moveRepository.findById(id).ifPresent(move -> {
             move.setVessel(vesselMapper.toEntity(vessel));
@@ -81,6 +82,7 @@ public class MoveServiceImpl implements MoveService {
             move.setTimeAndDateOfOperation(timeAndDateOfOperation);
             move.setDestinationPoint(pointMapper.toEntity(destinationPoint));
             move.setPilot(pilotMapper.toEntity(pilot));
+            move.setAgent(agentMapper.toEntity(agent));
             move.setOperationAtBerth(operationAtBerth);
             move.setCallId(callId);
             move.setExternalId(externalId);
@@ -93,7 +95,7 @@ public class MoveServiceImpl implements MoveService {
                                   PointDto pointOfOperation,
                                   OperationDto operation,
                                   LocalDateTime timeAndDateOfOperation,
-                                  PointDto destinationPoint, PilotDto pilot,
+                                  PointDto destinationPoint, PilotDto pilot, AgentDto agent,
                                   String operationAtBerth, Long callId,
                                   Long externalId) {
         val moveDtoOptional = moveMapper.toOptional(moveRepository.findByExternalId(externalId));
@@ -102,7 +104,7 @@ public class MoveServiceImpl implements MoveService {
                     pointOfOperation,
                     operation,
                     timeAndDateOfOperation,
-                    destinationPoint, pilot,
+                    destinationPoint, pilot, agent,
                     operationAtBerth, callId,
                     externalId);
             val move = moveMapper.toEntity(moveDto);
@@ -116,6 +118,7 @@ public class MoveServiceImpl implements MoveService {
                 move.setTimeAndDateOfOperation(timeAndDateOfOperation);
                 move.setDestinationPoint(pointMapper.toEntity(destinationPoint));
                 move.setPilot(pilotMapper.toEntity(pilot));
+                move.setAgent(agentMapper.toEntity(agent));
                 move.setOperationAtBerth(operationAtBerth);
                 move.setCallId(callId);
             });
@@ -136,5 +139,10 @@ public class MoveServiceImpl implements MoveService {
         moveRepository.findById(id).ifPresent(move -> {
             move.setSent(true);
         });
+    }
+
+    @Override
+    public List<MoveDto> findLastFiveMoves() {
+        return moveMapper.toDtos(moveRepository.findTop5ByOrderByExternalIdDesc());
     }
 }

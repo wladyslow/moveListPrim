@@ -24,13 +24,15 @@ public interface MoveService {
 
     void update(Long id, VesselDto vessel, PointDto pointOfOperation, OperationDto operation,
                 LocalDateTime timeAndDateOfOperation, PointDto destinationPoint,
-                PilotDto pilot, String operationAtBerth, Long callId, Long externalId);
+                PilotDto pilot, AgentDto agent, String operationAtBerth, Long callId, Long externalId);
 
     MoveDto createOrUpdate(VesselDto vessel, PointDto pointOfOperation, OperationDto operation,
                            LocalDateTime timeAndDateOfOperation, PointDto destinationPoint,
-                           PilotDto pilot, String operationAtBerth, Long callId, Long externalId);
+                           PilotDto pilot, AgentDto agent, String operationAtBerth, Long callId, Long externalId);
 
     List <MoveDto> findAllByIsSent(boolean isSent);
 
     void messageIsSent(Long id);
+
+    List<MoveDto> findLastFiveMoves();
 }

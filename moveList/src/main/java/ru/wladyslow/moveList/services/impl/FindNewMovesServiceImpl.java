@@ -1,6 +1,7 @@
 package ru.wladyslow.moveList.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FindNewMovesServiceImpl implements FindNewMovesService {
@@ -175,6 +177,8 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
         return vessel;
     }
 
+
+
     public List<MoveDto> getMovesForSentArrayList(String urlString) {
         List<MoveDto> movesForSent = new ArrayList<>();
         List<MoveDto> moves = getMovesArrayList(urlString);
@@ -199,6 +203,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
         Long callId = 0L;
         Long externalId = 0L;
         Document docCustomConn = null;
+        AgentDto agent = new AgentDto();
         try {
             docCustomConn = Jsoup.connect(urlString)
                     .userAgent("Mozilla")
@@ -220,6 +225,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                     switch (j) {
                         case (0):
                             vessel = getVesselDto(cols.get(j).select("a").first().attr("href"));
+                            agent = agentService.updateOrCreate(vessel.getAgent().getName());
                             break;
                         case (1):
                             pointOfOperation = pointService.createOrUpdate(cols.get(j).text());
@@ -251,7 +257,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                 }
                 MoveDto move = moveService.createOrUpdate(vessel, pointOfOperation, operation,
                         timeAndDateOfOperation, destinationPoint,
-                        pilot, operationAtBerth, callId, externalId);
+                        pilot, agent, operationAtBerth, callId, externalId);
                 moves.add(move);
             }
 
@@ -276,6 +282,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
         String operationAtBerth = "";
         Long callId = 0L;
         Long externalId = 0L;
+        AgentDto agent = new AgentDto();
         Document docCustomConn = null;
         try {
             docCustomConn = Jsoup.connect(urlString)
@@ -295,6 +302,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                 switch (j) {
                     case (0):
                         vessel = getVesselDto(cols.get(j).select("a").first().attr("href"));
+                        agent = agentService.updateOrCreate(vessel.getAgent().getName());
                         break;
                     case (1):
                         pointOfOperation = pointService.createOrUpdate(cols.get(j).text());
@@ -326,7 +334,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
             }
             MoveDto move = moveService.createOrUpdate(vessel, pointOfOperation, operation,
                     timeAndDateOfOperation, destinationPoint,
-                    pilot, operationAtBerth, callId, externalId);
+                    pilot, agent, operationAtBerth, callId, externalId);
             moves.add(move);
         }
         return moves;
@@ -371,6 +379,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
     @Override
     public void findNewMovesAndPostThem() {
         List<MoveDto> moves = getMovesForSentArrayList("http://skap.pasp.ru/Move/MoveListPaged?harb=PRIM");
+        log.info("Количество записей к отправке: " + moves.size());
         if (moves.size() > 0) {
             for (MoveDto move : moves) {
                 if (moves.size() > 5) {
