@@ -32,10 +32,8 @@ public class StartHandler implements Handler {
         ));
         SendMessage registrationMessage = TelegramBotUtil.createMessageTemplate(user);
         registrationMessage.setText("Для начала работы сообщите Ваше имя, пожалуйста.");
-        // Меняем пользователю статус на - "ожидание ввода имени"
         user.setBotState(State.ENTER_NAME);
         userService.saveChanges(user);
-
         return List.of(welcomeMessage, registrationMessage);
     }
 
