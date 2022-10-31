@@ -14,4 +14,8 @@ public class IceClassDto {
     public IceClassDto(String name) {
         this.name = name;
     }
+
+    public boolean equals(IceClassDto iceClassDto) {
+        return this.name.equals(iceClassDto.name);
+    }
 }

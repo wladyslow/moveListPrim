@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:8.0.25
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'movelist'
+      MYSQL_USER: 'wladyslow'
+      MYSQL_PASSWORD: 'qPloR1785'
+      MYSQL_ROOT_PASSWORD: 'qPloR1785'
+    ports:
+      - '3319:3306'
+    expose:
+      - '3319'

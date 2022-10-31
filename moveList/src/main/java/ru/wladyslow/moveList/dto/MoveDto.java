@@ -3,12 +3,14 @@ package ru.wladyslow.moveList.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.wladyslow.moveList.entities.Agent;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
-public class MoveDto implements Comparable<MoveDto>{
+public class MoveDto implements Comparable<MoveDto> {
 
     private Long id;
 
@@ -24,6 +26,8 @@ public class MoveDto implements Comparable<MoveDto>{
     private PointDto destinationPoint;
 
     private PilotDto pilot;
+
+    private AgentDto agent;
 
     private String operationAtBerth;
 
@@ -63,8 +67,40 @@ public class MoveDto implements Comparable<MoveDto>{
         this.externalId = externalId;
     }
 
+    public MoveDto(VesselDto vessel, PointDto pointOfOperation,
+                   OperationDto operation, LocalDateTime timeAndDateOfOperation,
+                   PointDto destinationPoint, PilotDto pilot, AgentDto agent,
+                   String operationAtBerth, Long callId, Long externalId) {
+        this.vessel = vessel;
+        this.pointOfOperation = pointOfOperation;
+        this.operation = operation;
+        this.timeAndDateOfOperation = timeAndDateOfOperation;
+        this.destinationPoint = destinationPoint;
+        this.pilot = pilot;
+        this.agent = agent;
+        this.operationAtBerth = operationAtBerth;
+        this.callId = callId;
+        this.externalId = externalId;
+    }
+
     @Override
     public int compareTo(MoveDto o) {
         return this.getTimeAndDateOfOperation().compareTo(o.getTimeAndDateOfOperation());
+    }
+
+    public String getMoveDtoMessage() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formattedDateTime = this.getTimeAndDateOfOperation().format(formatter);
+        return this.getVessel().getName() + " / " +
+                this.getVessel().getVesselFinderLink() +
+                " (" +
+                this.getVessel().getImo() + ") " +
+                this.getVessel().getFlag().getRusName() + " " +
+                this.getVessel().getType() + " " +
+                this.getVessel().getAgent().getName() + " " +
+                this.getOperation().getName() + " " +
+                this.getPointOfOperation().getName() + " " +
+                formattedDateTime + " " +
+                this.getPilot().getName();
     }
 }

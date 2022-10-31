@@ -46,6 +46,10 @@ public class Move {
     @JoinColumn(name = "PILOT_ID")
     private Pilot pilot;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "AGENT_ID")
+    private Agent agent;
+
     @Column
     private String operationAtBerth;
 
@@ -83,6 +87,22 @@ public class Move {
         this.timeAndDateOfOperation = timeAndDateOfOperation;
         this.destinationPoint = destinationPoint;
         this.pilot = pilot;
+        this.operationAtBerth = operationAtBerth;
+        this.callId = callId;
+        this.externalId = externalId;
+    }
+
+    public Move(Vessel vessel, Point pointOfOperation,
+                Operation operation, LocalDateTime timeAndDateOfOperation,
+                Point destinationPoint, Pilot pilot, Agent agent,
+                String operationAtBerth, Long callId, Long externalId) {
+        this.vessel = vessel;
+        this.pointOfOperation = pointOfOperation;
+        this.operation = operation;
+        this.timeAndDateOfOperation = timeAndDateOfOperation;
+        this.destinationPoint = destinationPoint;
+        this.pilot = pilot;
+        this.agent = agent;
         this.operationAtBerth = operationAtBerth;
         this.callId = callId;
         this.externalId = externalId;

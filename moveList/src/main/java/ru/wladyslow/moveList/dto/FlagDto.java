@@ -16,6 +16,9 @@ public class FlagDto {
     public FlagDto(String rusName) {
         this.rusName = rusName;
     }
+    public boolean equals(FlagDto flagDto) {
+        return this.rusName.equals(flagDto.rusName);
+    }
 }
 
 

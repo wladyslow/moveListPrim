@@ -1,6 +1,7 @@
 package ru.wladyslow.moveList.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,7 +16,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FindNewMovesServiceImpl implements FindNewMovesService {
@@ -30,6 +33,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
     private final VesselService vesselService;
     private final BotService botService;
 
+    @Override
     public VesselDto getVesselDto(String urlEnd) {
         String subPart = "http://skap.pasp.ru/";
         String finalUrl = subPart.concat(urlEnd);
@@ -103,13 +107,25 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
             Elements cols = row.select("td");
             for (int j = 0; j < cols.size(); j++) {
                 if (cols.get(j).html().contains("Длина м.:")) {
-                    loa = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    if (cols.get(j).text().split(":").length > 1) {
+                        loa = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    } else {
+                        loa = 0;
+                    }
                 }
                 if (cols.get(j).html().contains("Ширина м.:")) {
-                    beam = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    if (cols.get(j).text().split(":").length > 1) {
+                        beam = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    } else {
+                        beam = 0;
+                    }
                 }
                 if (cols.get(j).html().contains("Высота борта м.:")) {
-                    height = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    if (cols.get(j).text().split(":").length > 1) {
+                        height = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                    } else {
+                        height = 0;
+                    }
                 }
             }
         }
@@ -122,13 +138,25 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                 Elements cols = row.select("td");
                 for (int j = 0; j < cols.size(); j++) {
                     if (cols.get(j).html().contains("GRT т. :") && grt == 0) {
-                        grt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        if (cols.get(j).text().split(":").length > 1) {
+                            grt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        } else {
+                            grt = 0;
+                        }
                     }
                     if (cols.get(j).html().contains("Исключение из GRT т. :")) {
-                        swbt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        if (cols.get(j).text().split(":").length > 1) {
+                            swbt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        } else {
+                            swbt = 0;
+                        }
                     }
                     if (cols.get(j).html().contains("Дедвейт т.:")) {
-                        dwt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        if (cols.get(j).text().split(":").length > 1) {
+                            dwt = Double.parseDouble(cols.get(j).text().split(":")[1].trim().replace(",", "."));
+                        } else {
+                            dwt = 0;
+                        }
                     }
                     if (cols.get(j).html().contains("Ледовый класс :")) {
                         iceClass = iceClassService.createOrUpdate(cols.get(j).text().split(":")[1].trim());
@@ -148,6 +176,8 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                 yearOfBuilt, externalId, agent);
         return vessel;
     }
+
+
 
     public List<MoveDto> getMovesForSentArrayList(String urlString) {
         List<MoveDto> movesForSent = new ArrayList<>();
@@ -173,6 +203,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
         Long callId = 0L;
         Long externalId = 0L;
         Document docCustomConn = null;
+        AgentDto agent = new AgentDto();
         try {
             docCustomConn = Jsoup.connect(urlString)
                     .userAgent("Mozilla")
@@ -194,6 +225,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                     switch (j) {
                         case (0):
                             vessel = getVesselDto(cols.get(j).select("a").first().attr("href"));
+                            agent = agentService.updateOrCreate(vessel.getAgent().getName());
                             break;
                         case (1):
                             pointOfOperation = pointService.createOrUpdate(cols.get(j).text());
@@ -225,7 +257,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                 }
                 MoveDto move = moveService.createOrUpdate(vessel, pointOfOperation, operation,
                         timeAndDateOfOperation, destinationPoint,
-                        pilot, operationAtBerth, callId, externalId);
+                        pilot, agent, operationAtBerth, callId, externalId);
                 moves.add(move);
             }
 
@@ -250,6 +282,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
         String operationAtBerth = "";
         Long callId = 0L;
         Long externalId = 0L;
+        AgentDto agent = new AgentDto();
         Document docCustomConn = null;
         try {
             docCustomConn = Jsoup.connect(urlString)
@@ -269,6 +302,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                 switch (j) {
                     case (0):
                         vessel = getVesselDto(cols.get(j).select("a").first().attr("href"));
+                        agent = agentService.updateOrCreate(vessel.getAgent().getName());
                         break;
                     case (1):
                         pointOfOperation = pointService.createOrUpdate(cols.get(j).text());
@@ -300,7 +334,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
             }
             MoveDto move = moveService.createOrUpdate(vessel, pointOfOperation, operation,
                     timeAndDateOfOperation, destinationPoint,
-                    pilot, operationAtBerth, callId, externalId);
+                    pilot, agent, operationAtBerth, callId, externalId);
             moves.add(move);
         }
         return moves;
@@ -345,10 +379,21 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
     @Override
     public void findNewMovesAndPostThem() {
         List<MoveDto> moves = getMovesForSentArrayList("http://skap.pasp.ru/Move/MoveListPaged?harb=PRIM");
+        log.info("Количество записей к отправке: " + moves.size());
         if (moves.size() > 0) {
             for (MoveDto move : moves) {
-                botService.sendMessage(move);
-                moveService.messageIsSent(move.getId());
+                if (moves.size() > 5) {
+                    botService.sendMessage(move);
+                    moveService.messageIsSent(move.getId());
+                    try {
+                        TimeUnit.SECONDS.sleep(3);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    botService.sendMessage(move);
+                    moveService.messageIsSent(move.getId());
+                }
             }
         }
     }
