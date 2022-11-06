@@ -143,6 +143,6 @@ public class MoveServiceImpl implements MoveService {
 
     @Override
     public List<MoveDto> findLastFiveMoves() {
-        return moveMapper.toDtos(moveRepository.findTop5ByOrderByExternalIdDesc());
+        return moveMapper.toDtos(moveRepository.findTop5ByOrderByTimeAndDateOfOperationDesc());
     }
 }

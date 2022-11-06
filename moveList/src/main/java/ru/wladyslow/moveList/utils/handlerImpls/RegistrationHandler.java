@@ -101,7 +101,7 @@ public class RegistrationHandler implements Handler {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         List<InlineKeyboardButton> inlineKeyboardButtonsRowOne = List.of(
-                TelegramBotUtil.createInlineKeyboardButton("Accept", NAME_ACCEPT));
+                TelegramBotUtil.createInlineKeyboardButton("Подтвердить", NAME_ACCEPT));
 
         inlineKeyboardMarkup.setKeyboard(List.of(inlineKeyboardButtonsRowOne));
         List<PartialBotApiMethod<? extends Serializable>> botReply = new ArrayList<>();

@@ -26,6 +26,12 @@ public class User {
     private String name;
 
     @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
+
+    @Column
     private Long chatId;
 
     @Column

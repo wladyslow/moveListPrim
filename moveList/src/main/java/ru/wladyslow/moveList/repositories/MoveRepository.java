@@ -14,5 +14,5 @@ public interface MoveRepository extends JpaRepository<Move, Long> {
 
     List<Move> findAllByIsSent(boolean isSent);
 
-    List<Move> findTop5ByOrderByExternalIdDesc();
+    List<Move> findTop5ByOrderByTimeAndDateOfOperationDesc();
 }

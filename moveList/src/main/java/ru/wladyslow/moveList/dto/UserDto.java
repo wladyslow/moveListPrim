@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import ru.wladyslow.moveList.utils.State;
 import ru.wladyslow.moveList.utils.UserStatus;
 
+import javax.persistence.Column;
+
 @Data
 @NoArgsConstructor
 public class UserDto {
@@ -12,6 +14,10 @@ public class UserDto {
     private Long id;
 
     private String name;
+
+    private String firstName;
+
+    private String lastName;
 
     private Long chatId;
 

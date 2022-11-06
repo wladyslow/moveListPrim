@@ -33,18 +33,24 @@ public class UpdateReceiver {
                 // Получаем айди чата с пользователем
                 final Long chatId = message.getFrom().getId();
 
+                final String firstName = message.getFrom().getFirstName();
+                final String lastName = message.getFrom().getLastName();
+
                 // Просим у репозитория пользователя. Если такого пользователя нет - создаем нового и возвращаем его.
                 // Как раз на случай нового пользователя мы и сделали конструктор с одним параметром в классе User
                 final UserDto user = userService.findByChatId(chatId)
-                        .orElseGet(() -> userService.createUser(chatId));
+                        .orElseGet(() -> userService.updateOrCreate(chatId, firstName, lastName));
+
                 // Ищем нужный обработчик и возвращаем результат его работы
                 return getHandlerByState(user.getBotState()).handle(user, message.getText());
 
             } else if (update.hasCallbackQuery()) {
                 final CallbackQuery callbackQuery = update.getCallbackQuery();
                 final Long chatId = callbackQuery.getFrom().getId();
+                final String firstName = callbackQuery.getFrom().getFirstName();
+                final String lastName = callbackQuery.getFrom().getLastName();
                 final UserDto user = userService.findByChatId(chatId)
-                        .orElseGet(() -> userService.createUser(chatId));
+                        .orElseGet(() -> userService.updateOrCreate(chatId, firstName, lastName));
 
                 return getHandlerByCallBackQuery(callbackQuery.getData()).handle(user, callbackQuery.getData());
             }

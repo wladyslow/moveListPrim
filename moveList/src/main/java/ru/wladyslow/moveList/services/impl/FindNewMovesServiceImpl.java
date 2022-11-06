@@ -75,7 +75,11 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                     engName = cols.get(j).text().split(":")[1].trim().replace("*", "");
                 }
                 if (cols.get(j).html().contains("Код ИМО :")) {
-                    imo = cols.get(j).text().split(":")[1].trim();
+                    if (cols.get(j).text().split(":").length > 1) {
+                        imo = cols.get(j).text().split(":")[1].trim();
+                    } else {
+                        imo = "---";
+                    }
                 }
             }
         }

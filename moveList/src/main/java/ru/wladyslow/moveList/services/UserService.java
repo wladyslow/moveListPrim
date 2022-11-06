@@ -24,4 +24,6 @@ public interface UserService {
     void update(Long id, String name, Long chatId);
 
     void saveChanges(UserDto user);
+
+    UserDto updateOrCreate(Long chatId, String firstName, String lastNAme);
 }
