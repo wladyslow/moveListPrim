@@ -71,12 +71,10 @@ public class RegistrationHandler implements Handler {
 
 
     private List<PartialBotApiMethod<? extends Serializable>> accept(UserDto user) {
-        // Если пользователь принял имя - меняем статус и сохраняем
         user.setBotState(State.NONE);
         user.setUserStatus(UserStatus.INITIAL);
         userService.saveChanges(user);
 
-        // Создаем кнопку для начала игры
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         List<InlineKeyboardButton> inlineKeyboardButtonsRowOne = List.of(

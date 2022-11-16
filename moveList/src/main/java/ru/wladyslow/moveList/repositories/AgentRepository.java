@@ -5,7 +5,7 @@ import ru.wladyslow.moveList.entities.Agent;
 
 import java.util.Optional;
 
-public interface AgentRepository  extends JpaRepository<Agent, Long> {
+public interface AgentRepository extends JpaRepository<Agent, Long> {
 
     Optional<Agent> findByName(String name);
 }

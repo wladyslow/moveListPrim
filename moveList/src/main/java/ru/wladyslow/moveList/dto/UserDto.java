@@ -30,4 +30,12 @@ public class UserDto {
         this.botState = State.START;
         this.userStatus = UserStatus.INITIAL;
     }
+
+    public UserDto(Long chatId, String firstName, String lastName) {
+        this.chatId = chatId;
+        this.botState = State.START;
+        this.userStatus = UserStatus.INITIAL;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 }

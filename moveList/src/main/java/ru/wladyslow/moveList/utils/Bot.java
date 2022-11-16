@@ -84,5 +84,27 @@ public class Bot extends TelegramLongPollingBot {
         response.disableWebPagePreview();
         execute(response);
     }
+
+    public void sendFoundVessels(List<String> vessels) throws TelegramApiException {
+        SendMessage response = new SendMessage();
+        String message = "";
+        if (vessels.size() == 0) {
+            message = "Судно не найдено";
+        } else if (vessels.size() == 1) {
+            message = "Результат поиска: " + "\n" + vessels.get(0);
+        } else {
+            message = String.format(
+                    "Найдено %d танкеров: ", vessels.size());
+            int i = 1;
+            for (String vessel : vessels) {
+                message = message.concat("\n" + i + ". " + vessel);
+            }
+        }
+        response.setChatId(this.getChatId());
+        response.enableHtml(true);
+        response.setText(message);
+        response.disableWebPagePreview();
+        execute(response);
+    }
 }
 

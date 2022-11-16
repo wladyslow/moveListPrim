@@ -8,6 +8,8 @@ import ru.wladyslow.moveList.dto.PortScheduleDto;
 import ru.wladyslow.moveList.services.BotService;
 import ru.wladyslow.moveList.utils.Bot;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BotServiceImpl implements BotService {
@@ -27,6 +29,15 @@ public class BotServiceImpl implements BotService {
     public void sendPortScheduleDto(PortScheduleDto portScheduleDto) {
         try {
             bot.sendPortSchedule(portScheduleDto);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendFoundVessels(List<String> vessels) {
+        try {
+            bot.sendFoundVessels(vessels);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

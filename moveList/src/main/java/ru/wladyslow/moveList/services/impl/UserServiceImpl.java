@@ -83,19 +83,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateOrCreate(Long chatId, String firstName, String lastNAme) {
+    public UserDto updateOrCreate(Long chatId, String firstName, String lastName) {
         val userDtoOpt = findByChatId(chatId);
         if (userDtoOpt.isEmpty()) {
-            val userDto = new UserDto(chatId);
-            userDto.setFirstName(firstName);
-            userDto.setLastName(lastNAme);
+            val userDto = new UserDto(chatId, firstName, lastName);
+            //userDto.setFirstName(firstName);
+            // userDto.setLastName(lastName);
             val user = userMapper.toEntity(userDto);
             userRepository.save(user);
             return userMapper.toDto(user);
         } else {
             val userDto = userDtoOpt.get();
             userDto.setFirstName(firstName);
-            userDto.setLastName(lastNAme);
+            userDto.setLastName(lastName);
             val user = userMapper.toEntity(userDto);
             userRepository.save(user);
             return userMapper.toDto(user);

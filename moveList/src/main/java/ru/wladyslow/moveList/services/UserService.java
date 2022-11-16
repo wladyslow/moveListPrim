@@ -25,5 +25,5 @@ public interface UserService {
 
     void saveChanges(UserDto user);
 
-    UserDto updateOrCreate(Long chatId, String firstName, String lastNAme);
+    UserDto updateOrCreate(Long chatId, String firstName, String lastName);
 }

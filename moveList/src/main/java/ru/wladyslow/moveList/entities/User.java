@@ -45,4 +45,12 @@ public class User {
         this.botState = State.START;
         this.userStatus = UserStatus.INITIAL;
     }
+
+    public User(Long chatId, String firstName, String lastName) {
+        this.chatId = chatId;
+        this.botState = State.START;
+        this.userStatus = UserStatus.INITIAL;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 }

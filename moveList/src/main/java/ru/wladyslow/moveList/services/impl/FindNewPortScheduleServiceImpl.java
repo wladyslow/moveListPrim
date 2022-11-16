@@ -71,8 +71,6 @@ public class FindNewPortScheduleServiceImpl implements FindNewPortSchedule {
             DateTimeFormatter formatterDateAndTimeOfScheduledOp = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
             String dateAndHead = tableName.split("Приморск: Плановый день ")[1].substring(0, 10);
             LocalDate dateOfSchedule = LocalDate.parse(dateAndHead, formatterOfDates);
-
-
             Element table = tables.first();
             Elements rows = table.select("tr");
             if (rows.size() > 1) {
@@ -126,7 +124,4 @@ public class FindNewPortScheduleServiceImpl implements FindNewPortSchedule {
         }
         return Optional.empty();
     }
-
-
-
 }

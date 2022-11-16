@@ -40,6 +40,7 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
         String name = "";
         String engName = "";
         String imo = "";
+        String mmsi = "";
         FlagDto flag = new FlagDto();
         String type = "";
         double loa = 0;
@@ -79,6 +80,13 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                         imo = cols.get(j).text().split(":")[1].trim();
                     } else {
                         imo = "---";
+                    }
+                }
+                if (cols.get(j).html().contains("Код MMSI :")) {
+                    if (cols.get(j).text().split(":").length > 1) {
+                        mmsi = cols.get(j).text().split(":")[1].trim();
+                    } else {
+                        mmsi = "---";
                     }
                 }
             }
@@ -174,13 +182,12 @@ public class FindNewMovesServiceImpl implements FindNewMovesService {
                 }
             }
         }
-        VesselDto vessel = vesselService.updateOrCreate(name, engName, imo,
+        VesselDto vessel = vesselService.updateOrCreate(name, engName, imo, mmsi,
                 flag, type, loa, beam,
                 height, grt, swbt, dwt, iceClass,
                 yearOfBuilt, externalId, agent);
         return vessel;
     }
-
 
 
     public List<MoveDto> getMovesForSentArrayList(String urlString) {

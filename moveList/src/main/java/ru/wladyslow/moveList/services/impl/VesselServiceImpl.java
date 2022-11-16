@@ -4,15 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.wladyslow.moveList.dto.AgentDto;
-import ru.wladyslow.moveList.dto.FlagDto;
-import ru.wladyslow.moveList.dto.IceClassDto;
-import ru.wladyslow.moveList.dto.VesselDto;
-import ru.wladyslow.moveList.mapper.AgentMapper;
-import ru.wladyslow.moveList.mapper.FlagMapper;
-import ru.wladyslow.moveList.mapper.IceClassMapper;
-import ru.wladyslow.moveList.mapper.VesselMapper;
+import ru.wladyslow.moveList.dto.*;
+import ru.wladyslow.moveList.mapper.*;
 import ru.wladyslow.moveList.repositories.VesselRepository;
+import ru.wladyslow.moveList.services.AisDataService;
 import ru.wladyslow.moveList.services.VesselService;
 
 import java.util.List;
@@ -27,16 +22,18 @@ public class VesselServiceImpl implements VesselService {
     private final FlagMapper flagMapper;
     private final IceClassMapper iceClassMapper;
     private final AgentMapper agentMapper;
+    private final AisDataService aisDataService;
+    private final AisDataMapper aisDataMapper;
 
     @Override
     @Transactional
     public Long createVessel(String name, String engName,
-                             String imo, FlagDto flag, String type,
+                             String imo, String mmsi, FlagDto flag, String type,
                              double loa, double beam, double height,
                              double grt, double swbt, double dwt, IceClassDto iceClass,
                              int yearOfBuilt, Long externalId, AgentDto agent) {
         val vesselDto = new VesselDto(name, engName,
-                imo, flag, type,
+                imo, mmsi, flag, type,
                 loa, beam, height,
                 grt, swbt, dwt, iceClass,
                 yearOfBuilt, externalId, agent);
@@ -90,7 +87,7 @@ public class VesselServiceImpl implements VesselService {
     @Override
     @Transactional
     public void update(Long id, String name, String engName,
-                       String imo, FlagDto flag, String type,
+                       String imo, String mmsi, FlagDto flag, String type,
                        double loa, double beam, double height,
                        double grt, double swbt, double dwt,
                        IceClassDto iceClass, int yearOfBuilt,
@@ -99,6 +96,7 @@ public class VesselServiceImpl implements VesselService {
             vessel.setName(name);
             vessel.setEngName(engName);
             vessel.setImo(imo);
+            vessel.setMmsi(mmsi);
             vessel.setFlag(flagMapper.toEntity(flag));
             vessel.setType(type);
             vessel.setLoa(loa);
@@ -116,7 +114,7 @@ public class VesselServiceImpl implements VesselService {
 
     @Override
     @Transactional
-    public VesselDto updateOrCreate(String name, String engName, String imo,
+    public VesselDto updateOrCreate(String name, String engName, String imo, String mmsi,
                                     FlagDto flag, String type, double loa,
                                     double beam, double height, double grt,
                                     double swbt, double dwt, IceClassDto iceClass,
@@ -124,18 +122,21 @@ public class VesselServiceImpl implements VesselService {
         val vesselOptional = vesselMapper.toOptional(vesselRepository.findByExternalId(externalId));
         if (vesselOptional.isEmpty()) {
             val vesselDto = new VesselDto(name, engName,
-                    imo, flag, type,
+                    imo, mmsi, flag, type,
                     loa, beam, height,
                     grt, swbt, dwt, iceClass,
                     yearOfBuilt, externalId, agent);
+            vesselDto.setAisName(vesselDto.getVesselsAisName());
             val vessel = vesselMapper.toEntity(vesselDto);
             vesselRepository.save(vessel);
+            vessel.setAisData(aisDataMapper.toEntity(aisDataService.updateOrCreate(vessel.getId(), vesselDto.getVesselFinderUrl())));
             return vesselMapper.toDto(vesselRepository.findById(vessel.getId()).get());
         } else {
             vesselRepository.findByExternalId(externalId).ifPresent(vessel -> {
                 vessel.setName(name);
                 vessel.setEngName(engName);
                 vessel.setImo(imo);
+                vessel.setMmsi(mmsi);
                 vessel.setFlag(flagMapper.toEntity(flag));
                 vessel.setType(type);
                 vessel.setLoa(loa);
@@ -146,7 +147,9 @@ public class VesselServiceImpl implements VesselService {
                 vessel.setDwt(dwt);
                 vessel.setIceClass(iceClassMapper.toEntity(iceClass));
                 vessel.setYearOfBuilt(yearOfBuilt);
+                vessel.setAisName(vessel.getVesselsAisName());
                 vessel.setAgent(agentMapper.toEntity(agent));
+                vessel.setAisData(aisDataMapper.toEntity(aisDataService.updateOrCreate(vessel.getId(), vesselMapper.toDto(vessel).getVesselFinderUrl())));
             });
             return vesselMapper.toDto(vesselRepository.findById(vesselOptional.get().getId()).get());
         }
